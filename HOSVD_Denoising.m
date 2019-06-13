@@ -1,4 +1,4 @@
-function [resultImage, PSNR, SSIM] = HOSVD_Denoising(par, patch_method)
+function [resultImage, PSNR, SSIM] = HOSVD_Denoising(par)
 startTime = clock;
 noiseImage = par.noiseImage;
 originalImage = par.originalImage;
@@ -21,18 +21,18 @@ for iter = 1 : par.iterationCount
         
     if (iter==1)
         par.sigma  = sqrt(abs(vd));
+        blk_arr = [];
     else
         par.sigma  = sqrt(abs(vd))*par.gamma;
-    end    
-    
-    %Image Patch Location
-    if patch_method == 0
-        if (mod(iter,6)==0 || iter==1)
-            blk_arr = Block_matching( resultImage, par);
-        end
-        allPatches = Im2Patch( resultImage, par );
     end
-
+    
+    if (mod(iter,6)==0 || iter==1)
+        [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
+    else
+        [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 0, blk_arr);
+    end
+    
+    
     updAllPatches = zeros( size(allPatches) );
     Weights =   zeros( size(allPatches) );
     patchesStacksCount = size(blk_arr,2);
@@ -40,7 +40,6 @@ for iter = 1 : par.iterationCount
     for  stackIdx = 1 : patchesStacksCount
         patches = allPatches(:, blk_arr(:, stackIdx));
         patches = reshape(patches, [par.patchSize, par.patchSize, par.patchStackSize]);
-
         [patches, Wi] = hosvdFilter(patches, subTou);
 
         patches = reshape(patches, [par.patchSize * par.patchSize, size(patches, 3)]);
@@ -69,10 +68,12 @@ for iter = 1 : par.iterationCount
     
     fprintf( 'Iteration %d : sigma = %2.2f, PSNR = %2.2f, SSIM = %2.4f\n', iter, par.sigma, PSNR, SSIM );
 end
+
 if isfield(par,'originalImage')
    PSNR = csnr( resultImage, originalImage, 0, 0 );
    SSIM = cal_ssim( resultImage, originalImage, 0, 0 );
 end
+
 fprintf('Total elapsed time = %f min\n', (etime(clock,startTime)/60) );
 return;
 

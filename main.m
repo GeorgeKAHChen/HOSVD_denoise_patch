@@ -11,11 +11,12 @@ clear;
 para_sigma       = 10;
 para_betta       = 0.32;
 para_gamma       = 0.45;
-para_patch_size  = 6;
+%para_gamma       = 0.67;
+para_patch_size  = 7;
 para_patch_stack = 25;
 para_iteration   = 5;
-test_switch      = 1;
-patch_method     = 0;
+test_switch      = 0;
+patch_method     = 2;
 %========================================================
 %Read Initial File
 img = double(imread('aznyan.jpg'));
@@ -41,10 +42,8 @@ result_img = result_img / 255;
 if test_switch == 1
     figure
     imshow(img)
-    %hold on;
     figure
     imshow(image_with_noise)
-    %hold on;
     figure
     imshow(result_img)
     hold on
