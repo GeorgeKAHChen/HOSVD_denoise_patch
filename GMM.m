@@ -1,4 +1,4 @@
-function outputs = GMM(Sigma_arr,X,par1,model, par)
+function ks = GMM(Sigma_arr,X,par1,model, par)
     %[MY,ks,group,nSig,PF]
     nSig = mean(Sigma_arr);
     Y    = X/255;
@@ -31,24 +31,27 @@ function outputs = GMM(Sigma_arr,X,par1,model, par)
     %end
     %group_size
     %outputs_size = max(group_size)
-    outputs_size = par.patchStackSize
-    outputs = zeros(outputs_size, length(ks));
-    for i = 1:size(ks)
-        LocalPatch = [];
-        val = 0;
-        for j = 1: size(ks)
-            if i == j
-                continue;
-            end
-            if val >= outputs_size
-                break;
-            end
-            if ks(i) == ks(j)
-                val = val + 1
-                outputs(val, i) = j
-            end
-        end
-        outputs = [outputs, LocalPatch];
-    end
+    %outputs_size = par.patchStackSize;
+    %outputs = zeros(floor((length(ks)+0.5) / par.step) + 1, outputs_size);
+    %for i0 = 1:length(index)
+    %    i = index(i0)
+    %    LocalPatch = [];
+    %    val = 1;
+    %    outputs(val, i) = i;
+    %    for j = 1: length(ks)
+    %        if i == j
+    %            continue;
+    %        end
+    %        if val >= outputs_size
+    %            break;
+    %        end
+    %        if ks(i) == ks(j)
+    %            val = val + 1
+    %            outputs(val, i) = j
+    %        end
+    %    end
+    %    i = i + par.step - 1;
+    %    %outputs = [outputs, LocalPatch];
+    %end
 end
 

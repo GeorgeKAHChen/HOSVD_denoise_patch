@@ -26,11 +26,13 @@ for iter = 1 : par.iterationCount
         par.sigma  = sqrt(abs(vd))*par.gamma;
     end
     
+    %Combine and changed by KazukiAmakawa
     if (mod(iter,6)==0 || iter==1)
         [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
     else
         [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 0, blk_arr);
     end
+    %End Change
     
     
     updAllPatches = zeros( size(allPatches) );

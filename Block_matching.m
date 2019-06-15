@@ -23,6 +23,7 @@ for i  = 1:patchSize
     end
 end
 
+%Combine and changed by KazukiAmakawa
 X0 = X;
 if Class == 0    
     pos_arr = origin_pos;
@@ -30,16 +31,16 @@ else
     if par.patch_method == 1
         I     =   (1:L);
         I     =   reshape(I, N, M);
-        N1    =   length(rows);
-        M1    =   length(columns);
+        N1    =   length(rows)
+        M1    =   length(columns)
         X         =  X';
         pos_arr   =  zeros(par.patchStackSize, N1*M1 );
         for  i  =  1 : N1
+            row     =   rows(i);
             for  j  =  1 : M1
-                row     =   rows(i);
                 col     =   columns(j);
                 off     =  (col-1)*N + row;
-                off1    =  (j-1)*N1 + i;
+                off1    =  (j-1)*N1 + i;  
                         
                 rmin    =   max( row-searchRadius, 1 );
                 rmax    =   min( row+searchRadius, N );
@@ -58,14 +59,86 @@ else
                 dis   =  dis./patchSize2;
                 [val,ind]   =  sort(dis);
                 %ind(val >= trashHold) = [];
-                pos_arr(:,off1)  =  idx( ind(1:par.patchStackSize) );        
+                pos_arr(:,off1)  =  idx( ind(1:par.patchStackSize) );   
+
             end
         end
 
     elseif par.patch_method == 2
+        %Gaussian Mixture Model Method
+        %Added by KazkiAmakawa, source code from 
+        sprintf('Patch method: GMM cluster with BFS\n');
+        N1    =   length(rows);
+        M1    =   length(columns);
         [par1, model] = GMMInitial(par.sigma, im);
         [X1, Sigma_arr] = GMMim2patch(im, noiseImage, par1);
-        pos_arr = GMM(Sigma_arr, X1, par1, model, par);
+        GMM_cluster = GMM(Sigma_arr, X1, par1, model, par);
+        sprintf('Gaussian Mixture Model Cluster finished\n');
+        %clusid = GMM_cluster(295)
+        %ttl = 0
+        %for i = 1: length(GMM_cluster)
+        %    if GMM_cluster(i) == clusid
+        %        ttl = ttl + 1;
+        %    end
+        %end
+        %ttl
+        %BFS for search first par.patchStackSize's values 
+        locx      = [-1, -1, -1,  0, 0,  1, 1, 1];
+        locy      = [-1,  0,  1, -1, 1, -1, 0, 1];
+        outputs   = zeros(N1 * M1, par.patchStackSize);
+        Total_Val = 0;
+        
+        for i = 1: N1
+            row = rows(i)
+            for j = 1:M1
+                col        = columns(j);
+                Total_Val  = Total_Val + 1;
+                Block_id   = (col-1)*N + row; 
+                cluster_id = GMM_cluster(Block_id);
+
+                p = [];
+                q = [];
+                val = 1;
+                p = [p, col];
+                q = [q, row];
+                stack_var = 1;
+                saveimg = zeros(M, N);
+                saveimg(col, row) = 1;
+                while 1
+                    itemx = p(val);
+                    itemy = q(val);
+                    if GMM_cluster((itemx-1)*N + itemy) == cluster_id
+                        outputs(stack_var, Total_Val) = (itemx-1)*N + itemy;
+                        stack_var = stack_var + 1;
+                    end
+
+                    if stack_var > par.patchStackSize
+                        break;
+                    end
+
+                    val = val + 1;
+                    
+                    for kase = 1:8
+                        currentx = itemx + locx(kase);
+                        currenty = itemy + locy(kase);
+                        if currentx < 1 || currentx > M || currenty < 1 || currenty > N
+                            continue;
+                        end
+                        if saveimg(currentx, currenty) == 0
+                            p = [p, currentx];
+                            q = [q, currenty];
+                            saveimg(currentx, currenty) = 1;
+                        else
+                            continue;
+                        end
+                    end
+              if val > length(p)
+                        break;
+                    end
+                end  
+            end
+        end
+        sprintf('Breadth First Search(BFS) to find the first par.patchStackSize list finished\n');
     end
 end
 
