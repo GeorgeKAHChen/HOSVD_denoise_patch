@@ -22,36 +22,5 @@ function ks = GMM(Sigma_arr,X,par1,model, par)
     end
     [~,ks] = max(PF(group,:));
     
-
-    %By KazukiAmakawa, change for out methods
-    %group_size = zeros(1, max(ks));
-    %length(ks)
-    %for i = 1: length(ks)
-    %    group_size(ks(i)) = group_size(ks(i)) + 1;
-    %end
-    %group_size
-    %outputs_size = max(group_size)
-    %outputs_size = par.patchStackSize;
-    %outputs = zeros(floor((length(ks)+0.5) / par.step) + 1, outputs_size);
-    %for i0 = 1:length(index)
-    %    i = index(i0)
-    %    LocalPatch = [];
-    %    val = 1;
-    %    outputs(val, i) = i;
-    %    for j = 1: length(ks)
-    %        if i == j
-    %            continue;
-    %        end
-    %        if val >= outputs_size
-    %            break;
-    %        end
-    %        if ks(i) == ks(j)
-    %            val = val + 1
-    %            outputs(val, i) = j
-    %        end
-    %    end
-    %    i = i + par.step - 1;
-    %    %outputs = [outputs, LocalPatch];
-    %end
 end
 

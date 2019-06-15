@@ -16,7 +16,7 @@ para_patch_size  = 7;
 para_patch_stack = 25;
 para_iteration   = 5;
 test_switch      = 0;
-patch_method     = 2;
+patch_method     = 1;
 %========================================================
 %Read Initial File
 img = double(imread('aznyan.jpg'));
