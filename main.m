@@ -13,13 +13,13 @@ para_betta       = 0.32;
 para_gamma       = 0.45;
 %para_gamma       = 0.67;
 para_patch_size  = 7;
-para_patch_stack = 25;
+para_patch_stack = 35;
 para_iteration   = 5;
-test_switch      = 0;
-patch_method     = 1;
+test_switch      = 0
+patch_method     = 2
 %========================================================
 %Read Initial File
-img = double(imread('aznyan.jpg'));
+img = double(imread('figure/Barbara.png'));
 img = img / 255;
 img_size = size(size(img));
 if img_size(1, 2) == 3

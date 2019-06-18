@@ -1,4 +1,6 @@
 function [resultImage, PSNR, SSIM] = HOSVD_Denoising(par)
+show_patch = 0
+
 startTime = clock;
 noiseImage = par.noiseImage;
 originalImage = par.originalImage;
@@ -27,18 +29,35 @@ for iter = 1 : par.iterationCount
     end
     
     %Combine and changed by KazukiAmakawa
-    if (mod(iter,6)==0 || iter==1)
-        [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
-    else
-        [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 0, blk_arr);
-    end
+    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
+    %if (mod(iter,6)==0 || iter==1)
+    %    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
+    %else
+    %    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 0, blk_arr);
+    %end
     %End Change
-    
-    
+
     updAllPatches = zeros( size(allPatches) );
     Weights =   zeros( size(allPatches) );
     patchesStacksCount = size(blk_arr,2);
     subTou = 2.9 * sqrt(2 * par.patchStackSize) * par.sigma^2;
+    %subTou = 2.9 * sqrt(2 * size(blk_arr,1)) * par.sigma^2;
+    %if show_patch
+        %for patch_index = 1: par.patchStackSize
+        %    (patch_index-1) * patchesStacksCount + 128
+        %    subplot(par.patchStackSize / 5, 5, patch_index);
+        %    imshow(allPatches( (patch_index-1) * patchesStacksCount + 234 ) / 255);
+        %end
+        %figure;
+
+        %for patch_index = 1: 150
+        %    subplot(patch_index / 10, 10, patch_index);
+        %    imshow(allPatches(patch_index) / 255);
+        %end
+        %figure;
+    %end
+    %End Change
+
     for  stackIdx = 1 : patchesStacksCount
         patches = allPatches(:, blk_arr(:, stackIdx));
         patches = reshape(patches, [par.patchSize, par.patchSize, par.patchStackSize]);

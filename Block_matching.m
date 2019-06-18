@@ -67,17 +67,13 @@ else
     elseif par.patch_method == 2
         %Gaussian Mixture Model Method with BFS nearist researching
         %Added by KazkiAmakawa, source code from 
-        gmmtime = clock;
-        sprintf('Patch method: GMM cluster with BFS\n');
         [par1, model] = GMMInitial(par.sigma, im);
                             %Import parameter and GMM pre-trained model
         [X1, Sigma_arr] = GMMim2patch(im, noiseImage, par1);
                             %Import data and sigma distance
         GMM_cluster = GMM(Sigma_arr, X1, par1, model, par);
                             %Main Gaussian cluster with model
-        sprintf('Gaussian Mixture Model Cluster finished\n');
-        fprintf('Total elapsed time = %f min\n', (etime(clock,gmmtime)/60) );
-
+        
 
         %BFS for search first par.patchStackSize's values 
         bfstime = clock;
@@ -170,9 +166,7 @@ else
             end
         end
         
-        fprintf('Total elapsed time = %f min\n', (etime(clock,bfstime)/60) );
-        sprintf('Breadth First Search(BFS) to find the first par.patchStackSize list finished\n');
-
+       
     end
 end
 
