@@ -9,14 +9,14 @@ clear;
 %========================================================
 %Setting Parameter
 para_sigma       = 10;
-para_betta       = 0.32;
-para_gamma       = 0.45;
+para_betta       = 0.1;
+para_gamma       = 0.35;
 %para_gamma       = 0.67;
 para_patch_size  = 7;
 para_patch_stack = 25;
 para_iteration   = 5;
 test_switch      = 0
-patch_method     = 3
+patch_method     = 2
 find_parameter   = 0
 %========================================================
 %Read Initial File

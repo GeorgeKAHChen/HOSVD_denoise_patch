@@ -1,4 +1,4 @@
-function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos, iter)
+function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos, iter, initialSigma)
 searchRadius      = 21;
 patchSize         = par.patchSize;
 patchSize2        = patchSize^2;
@@ -67,7 +67,7 @@ else
     elseif (par.patch_method == 2) || (par.patch_method == 3)
         %Gaussian Mixture Model Method with BFS nearist researching
         %Added by KazkiAmakawa, source code from 
-        [par1, model] = GMMInitial(par.sigma, im);
+        [par1, model] = GMMInitial(initialSigma, im);
                             %Import parameter and GMM pre-trained model
         [X1, Sigma_arr] = GMMim2patch(im, noiseImage, par1);
                             %Import data and sigma distance

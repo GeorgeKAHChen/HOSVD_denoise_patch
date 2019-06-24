@@ -16,6 +16,7 @@ fprintf('PSNR of the noisy image = %f \n', csnr(noiseImage, originalImage, 0, 0)
 resultImage = noiseImage;
 initialSigma = par.sigma;
 old_PSNR = 0;
+
 for iter = 1 : par.iterationCount
     resultImage = resultImage + par.betta*(noiseImage - resultImage);
     diff = resultImage-noiseImage;
@@ -27,9 +28,20 @@ for iter = 1 : par.iterationCount
     else
         par.sigma  = sqrt(abs(vd))*par.gamma;
     end
-    
+
+    if par.sigma <= 15
+        par.betta = 0.02;
+        par.gamma = 0.16;
+    elseif par.sigma<= 40
+        par.betta = 0.1;
+        par.gamma = 0.3;  
+    else
+        par.betta = 0.1;
+        par.gamma = 0.35;
+    end
+
     %Combine and changed by KazukiAmakawa
-    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr, iter);
+    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr, iter, initialSigma);
     %if (mod(iter,6)==0 || iter==1)
     %    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
     %else
