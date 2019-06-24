@@ -1,4 +1,4 @@
-function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos)
+function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos, iter)
 searchRadius      = 21;
 patchSize         = par.patchSize;
 patchSize2        = patchSize^2;
@@ -64,16 +64,28 @@ else
             end
         end
 
-    elseif par.patch_method == 2
+    elseif (par.patch_method == 2) || (par.patch_method == 3)
         %Gaussian Mixture Model Method with BFS nearist researching
         %Added by KazkiAmakawa, source code from 
         [par1, model] = GMMInitial(par.sigma, im);
                             %Import parameter and GMM pre-trained model
         [X1, Sigma_arr] = GMMim2patch(im, noiseImage, par1);
                             %Import data and sigma distance
-        GMM_cluster = GMM(Sigma_arr, X1, par1, model, par);
-                            %Main Gaussian cluster with model
+        [gmm_MY,gmm_ks,gmm_group,gmm_nSig,gmm_PF] = GMM(Sigma_arr, X1, par1, model);
         
+        if par.patch_method == 2
+            Cluster = gmm_ks;
+        elseif par.patch_method == 3
+            [gmm_MY,gmm_ks,gmm_group,gmm_nSig,gmm_PF] = GMM(Sigma_arr, X1, par1, model);
+
+            if gmm_nSig<=15
+                par1.Maxgroupsize = round(par1.Maxgroupsize/2);
+            end
+            KmeansCluster = FineCluster(noiseImage, gmm_group, gmm_ks, gmm_PF, par1, gmm_MY, iter, Sigma_arr);
+
+            Cluster = KmeansCluster;
+        end
+
 
         %BFS for search first par.patchStackSize's values 
         bfstime = clock;
@@ -94,7 +106,7 @@ else
                 col        = columns(j);
                 Total_Val  = Total_Val + 1;
                 Block_id   = (col-1)*N + row; 
-                cluster_id = GMM_cluster(Block_id);
+                cluster_id = Cluster(Block_id);
                             %Initial data for this search iteration
                 
                 p = [];
@@ -114,7 +126,7 @@ else
                             %Current item location for search
 
 
-                    if GMM_cluster((itemx-1)*N + itemy) == cluster_id
+                    if Cluster((itemx-1)*N + itemy) == cluster_id
                         pos_arr(stack_var, Total_Val) = (itemx-1)*N + itemy;
                         stack_var = stack_var + 1;
                             %Find the block are in same cluster or not

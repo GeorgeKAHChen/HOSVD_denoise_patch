@@ -1,5 +1,4 @@
-function ks = GMM(Sigma_arr,X,par1,model, par)
-    %[MY,ks,group,nSig,PF]
+function [MY,ks,group,nSig,PF] = GmmCluster( Sigma_arr,X,par1,model)
     nSig = mean(Sigma_arr);
     Y    = X/255;
     MY   = mean(Y);
@@ -21,6 +20,5 @@ function ks = GMM(Sigma_arr,X,par1,model, par)
         end
     end
     [~,ks] = max(PF(group,:));
-    
 end
 

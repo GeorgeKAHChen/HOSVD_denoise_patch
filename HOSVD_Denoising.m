@@ -1,5 +1,5 @@
 function [resultImage, PSNR, SSIM] = HOSVD_Denoising(par)
-show_patch = 0
+show_patch = 0;
 
 startTime = clock;
 noiseImage = par.noiseImage;
@@ -15,7 +15,7 @@ fprintf('PSNR of the noisy image = %f \n', csnr(noiseImage, originalImage, 0, 0)
 
 resultImage = noiseImage;
 initialSigma = par.sigma;
-
+old_PSNR = 0;
 for iter = 1 : par.iterationCount
     resultImage = resultImage + par.betta*(noiseImage - resultImage);
     diff = resultImage-noiseImage;
@@ -29,7 +29,7 @@ for iter = 1 : par.iterationCount
     end
     
     %Combine and changed by KazukiAmakawa
-    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
+    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr, iter);
     %if (mod(iter,6)==0 || iter==1)
     %    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
     %else
@@ -40,8 +40,8 @@ for iter = 1 : par.iterationCount
     updAllPatches = zeros( size(allPatches) );
     Weights =   zeros( size(allPatches) );
     patchesStacksCount = size(blk_arr,2);
-    subTou = 2.9 * sqrt(2 * par.patchStackSize) * par.sigma^2;
-    %subTou = 2.9 * sqrt(2 * size(blk_arr,1)) * par.sigma^2;
+    %subTou = 2.9 * sqrt(2 * par.patchStackSize) * par.sigma^2;
+    subTou = 2.9 * sqrt(2 * size(blk_arr,1)) * par.sigma^2;
     %if show_patch
         %for patch_index = 1: par.patchStackSize
         %    (patch_index-1) * patchesStacksCount + 128
@@ -85,15 +85,20 @@ for iter = 1 : par.iterationCount
     if isfield(par,'originalImage')
         PSNR = csnr( resultImage, originalImage, 0, 0 );
         SSIM = cal_ssim( resultImage, originalImage, 0, 0 );
+        if old_PSNR > PSNR
+            PSNR = old_PSNR;
+            break;
+        end
+        old_PSNR = PSNR;
     end
     
     fprintf( 'Iteration %d : sigma = %2.2f, PSNR = %2.2f, SSIM = %2.4f\n', iter, par.sigma, PSNR, SSIM );
 end
 
-if isfield(par,'originalImage')
-   PSNR = csnr( resultImage, originalImage, 0, 0 );
-   SSIM = cal_ssim( resultImage, originalImage, 0, 0 );
-end
+%if isfield(par,'originalImage')
+%   PSNR = csnr( resultImage, originalImage, 0, 0 );
+%   SSIM = cal_ssim( resultImage, originalImage, 0, 0 );
+%end
 
 fprintf('Total elapsed time = %f min\n', (etime(clock,startTime)/60) );
 return;
@@ -102,8 +107,10 @@ function [updPatchesStack, W] = hosvdFilter( patchesStack, subTou)
 [Core, U] = hosvd(patchesStack);
 CoreAbs = abs(Core);
 
+
 tau = subTou ./ (CoreAbs+eps);
 Core = Core .* (CoreAbs > tau);
+
 
 nonZeroElements = nnz(Core);
 elementsCount = numel(Core);
