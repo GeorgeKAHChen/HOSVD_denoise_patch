@@ -1,4 +1,4 @@
-function Ys = FineCluster( x,group,ks,PF,par,MY,iter,Sigma_arr)
+function [Ys, MaxSort] = FineCluster( x,group,ks,PF,par,MY,iter,Sigma_arr)
     Ys       = zeros(size(ks));
     for kase = 1: length(ks)
         Ys(kase) = ks(kase);

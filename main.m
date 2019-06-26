@@ -8,16 +8,22 @@ clc;
 clear;
 %========================================================
 %Setting Parameter
-para_sigma       = 10;
+para_sigma       = 50;
 para_betta       = 0.1;
 para_gamma       = 0.35;
 %para_gamma       = 0.67;
-para_patch_size  = 7;
-para_patch_stack = 25;
-para_iteration   = 5;
+para_patch_size  = 9;
+para_patch_stack = 35;
+para_iteration   = 10;
 test_switch      = 0
-patch_method     = 2
+patch_method     = 32
 find_parameter   = 0
+%Method list
+%patch_method = 1: Original method NNM patch search 
+%patch_method = 2x: Pre-trained Gaussian Mixture Model method
+%patch_method = 3x: Pre-trained GMM and K-means method
+%patch_method = x1: BFS after classification search
+%patch_method = x2: None search after classification
 %========================================================
 %Read Initial File
 img = double(imread('figure/Barbara.png'));
@@ -63,14 +69,11 @@ if find_parameter
 else
     [result_img, PSNR] = Image_HOSVD_Denoising(255 * image_with_noise, 255 * img, para_sigma, para_betta, para_gamma, para_patch_size, para_patch_stack, para_iteration, patch_method);
 end
-%result_img = result_img / 255;
-surf(betta_arr, gamma_arr, para_ops)
-betta_arr
-gamma_arr
-para_ops
+
 %========================================================
 %Show Result
 if test_switch == 1
+    result_img = result_img / 255;
     figure
     imshow(img)
     figure

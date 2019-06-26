@@ -29,7 +29,6 @@ par.betta = betta;
 par.gamma = gamma;
 par.iterationCount = iterationCount;
 par.step = min(6, par.patchSize-1);
-
 par.originalImage = originalImage;
 par.noiseImage = noiseImage;
 par.patch_method = patch_method;

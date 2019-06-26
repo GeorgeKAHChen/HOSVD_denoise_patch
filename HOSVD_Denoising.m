@@ -28,47 +28,44 @@ for iter = 1 : par.iterationCount
     else
         par.sigma  = sqrt(abs(vd))*par.gamma;
     end
+        
 
-    if par.sigma <= 15
-        par.betta = 0.02;
-        par.gamma = 0.16;
-    elseif par.sigma<= 40
-        par.betta = 0.1;
-        par.gamma = 0.3;  
-    else
-        par.betta = 0.1;
-        par.gamma = 0.35;
-    end
 
     %Combine and changed by KazukiAmakawa
+    if par.sigma <= 15
+        %par.patchSize = 7;
+        %par.patchStackSize = 25;
+        par.betta = 0.16;
+        par.gamma = 0.28;
+        %par.step = min(6, par.patchSize-1)
+
+    elseif par.sigma <= 40
+        %par.patchSize = 8;
+        %par.patchStackSize = 30;
+        par.betta = 0.1;
+        par.gamma = 0.3;  
+        %par.step = min(6, par.patchSize-1)
+
+    else
+        %par.patchSize = 9;
+        %par.patchStackSize = 35;
+        par.betta = 0.1;
+        par.gamma = 0.35;
+        %par.step = min(6, par.patchSize-1)
+
+    end
+
+    
     [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr, iter, initialSigma);
-    %if (mod(iter,6)==0 || iter==1)
-    %    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr);
-    %else
-    %    [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 0, blk_arr);
-    %end
-    %End Change
 
     updAllPatches = zeros( size(allPatches) );
     Weights =   zeros( size(allPatches) );
     patchesStacksCount = size(blk_arr,2);
-    %subTou = 2.9 * sqrt(2 * par.patchStackSize) * par.sigma^2;
     subTou = 2.9 * sqrt(2 * size(blk_arr,1)) * par.sigma^2;
-    %if show_patch
-        %for patch_index = 1: par.patchStackSize
-        %    (patch_index-1) * patchesStacksCount + 128
-        %    subplot(par.patchStackSize / 5, 5, patch_index);
-        %    imshow(allPatches( (patch_index-1) * patchesStacksCount + 234 ) / 255);
-        %end
-        %figure;
-
-        %for patch_index = 1: 150
-        %    subplot(patch_index / 10, 10, patch_index);
-        %    imshow(allPatches(patch_index) / 255);
-        %end
-        %figure;
-    %end
     %End Change
+
+
+
 
     for  stackIdx = 1 : patchesStacksCount
         patches = allPatches(:, blk_arr(:, stackIdx));
