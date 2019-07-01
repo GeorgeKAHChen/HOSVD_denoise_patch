@@ -63,7 +63,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                 end
             end
 
-        elseif (par.patch_method == 21) || (par.patch_method == 31) || (par.patch_method == 22) || (par.patch_method == 32)
+        elseif (par.patch_method == 21) || (par.patch_method == 31) || (par.patch_method == 22) || (par.patch_method == 32) || (par.patch_method == 33)
             %Gaussian Mixture Model Method with BFS nearist researching
             %Added by KazkiAmakawa, source code from 
             [par1, model] = GMMInitial(initialSigma, im);
@@ -75,7 +75,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
             if (par.patch_method == 21) || (par.patch_method == 22)
                 Cluster = gmm_ks;
                 MaxSort = 250;
-            elseif (par.patch_method == 31) || (par.patch_method == 32)
+            elseif (par.patch_method == 31) || (par.patch_method == 32) || (par.patch_method == 33)
                 if gmm_nSig<=15
                     par1.Maxgroupsize = round(par1.Maxgroupsize/2);
                 end
@@ -186,40 +186,69 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                     Distance_Vector(kase, 2) = distance_val;
                     Distance_Vector(kase, 3) = kase;
                 end
-                Distance_Vector  = sortrows(Distance_Vector, 1)
-                start_cluster    = 1
-                end_cluster      = 0
-                current_cluster  = Distance_Vector(1, 1)
-                current_tensor   = 0
-                pos_arr          = zeros(par.patchStackSize, not_zero_set)
+                Distance_Vector  = sortrows(Distance_Vector, 1);
+                start_cluster    = 1;
+                end_cluster      = 0;
+                current_cluster  = Distance_Vector(1, 1);
+                current_tensor   = 0;
+                pos_arr          = zeros(par.patchStackSize, not_zero_set);
                 
                 for kase = 1: length(Cluster)
                     if Distance_Vector(kase, 1) ~= current_cluster || kase + 1 > length(Cluster)
                         if kase ~= length(Cluster) 
-                            end_cluster = kase - 1
+                            end_cluster = kase - 1;
                         else
-                            end_cluster = kase
+                            end_cluster = kase;
                         end
-                        current_cluster = Distance_Vector(kase, 1)
-                        current_tensor  = current_tensor + 1
-                        Sub_Vector      = Distance_Vector(start_cluster: end_cluster, 1: end)
-                        start_cluster   = kase
+                        current_cluster = Distance_Vector(kase, 1);
+                        current_tensor  = current_tensor + 1;
+                        Sub_Vector      = Distance_Vector(start_cluster: end_cluster, 1: end);
+                        start_cluster   = kase;
 
                         if size(Sub_Vector, 1) <= par.patchStackSize
                             for patch_loc = 1: length(Sub_Vector)
-                                pos_arr(patch_loc, current_tensor) = Sub_Vector(patch_loc, 3)
+                                pos_arr(patch_loc, current_tensor) = Sub_Vector(patch_loc, 3);
                             end
                             for val = patch_loc + 1: par.patchStackSize
-                                pos_arr(val, current_tensor)       = Sub_Vector(patch_loc, 3)
+                                pos_arr(val, current_tensor)       = Sub_Vector(patch_loc, 3);
                             end
                         else
-                            Sub_Vector                             = sortrows(Sub_Vector, 2)
+                            Sub_Vector                             = sortrows(Sub_Vector, 2);
                             for patch_loc = 1: par.patchStackSize
-                                pos_arr(patch_loc, current_tensor) = Sub_Vector(patch_loc, 3)
+                                pos_arr(patch_loc, current_tensor) = Sub_Vector(patch_loc, 3);
                             end
                         end
                     end
                 end
+
+            elseif (par.patch_method == 33)
+                total_sort       = zeros(1, MaxSort);
+                true_sort        = zeros(1, MaxSort);
+                not_zero_set     = 0;
+                for kase = 1: length(Cluster)
+                    clus_id      = Cluster(kase);
+                    total_sort(clus_id) = total_sort(clus_id) + 1;
+                end
+
+                max_length       = max(total_sort);
+                for kase = 1: MaxSort
+                    if total_sort(kase) ~= 0
+                        not_zero_set = not_zero_set + 1;
+                        true_sort(kase) = not_zero_set;
+                    end
+                end
+                not_zero_set
+                max_length
+
+                max_mark         = zeros(not_zero_set);
+                pos_arr          = zeros(not_zero_set, max_length) + 1;
+                for kase = 1: length(Cluster)
+                    clus_id      = Cluster(kase);
+                    true_id      = true_sort(clus_id);
+                    max_mark(true_id) = max_mark(true_id) + 1;
+                    true_val     = max_mark(true_id);
+                    pos_arr(true_id, true_val) = kase;
+
 
             end
            
