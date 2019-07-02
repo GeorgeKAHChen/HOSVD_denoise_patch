@@ -7,14 +7,13 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
 
     N                 = size(im,1)-patchSize+1;
     M                 = size(im,2)-patchSize+1;
-    rows              = [1:step:N];;
-    rows              = [rows rows(end)+1:N];;
+    rows              = [1:step:N];
+    %rows              = [rows rows(end)+1:N];;
     columns           = [1:step:M];
-    columns           = [columns columns(end)+1:M];
+    %columns           = [columns columns(end)+1:M];
     L                 = N*M;
     X                 = zeros(patchSize*patchSize, L, 'single');
-
-    k    =  0;
+    k                 =  0;
     for i  = 1:patchSize
         for j  = 1:patchSize
             k    =  k+1;
@@ -22,7 +21,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
             X(k,:) =  blk(:)';
         end
     end
-    %Combine and changed by KazukiAmakawa
+    
     X0 = X;
     if Class == 0    
         pos_arr = origin_pos;
@@ -63,19 +62,20 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                 end
             end
 
-        elseif (par.patch_method == 21) || (par.patch_method == 31) || (par.patch_method == 22) || (par.patch_method == 32) || (par.patch_method == 33)
+        elseif (par.patch_method == 21) || (par.patch_method == 31) || (par.patch_method == 22) || (par.patch_method == 32) || (par.patch_method == 33) || (par.patch_method == 34)
             %Gaussian Mixture Model Method with BFS nearist researching
             %Added by KazkiAmakawa, source code from 
             [par1, model] = GMMInitial(initialSigma, im);
                                 %Import parameter and GMM pre-trained model
             [X1, Sigma_arr] = GMMim2patch(im, noiseImage, par1);
+            %size(X1)
                                 %Import data and sigma distance
             [gmm_MY,gmm_ks,gmm_group,gmm_nSig,gmm_PF] = GMM(Sigma_arr, X1, par1, model);
 
             if (par.patch_method == 21) || (par.patch_method == 22)
                 Cluster = gmm_ks;
                 MaxSort = 250;
-            elseif (par.patch_method == 31) || (par.patch_method == 32) || (par.patch_method == 33)
+            elseif (par.patch_method == 31) || (par.patch_method == 32) || (par.patch_method == 33) || (par.patch_method == 34)
                 if gmm_nSig<=15
                     par1.Maxgroupsize = round(par1.Maxgroupsize/2);
                 end
@@ -85,6 +85,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
             end
 
             if (par.patch_method == 21) || (par.patch_method == 31)
+                %Output BFS search result
                 bfstime   = clock;
                 N1        = length(rows);
                 M1        = length(columns); 
@@ -156,7 +157,13 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                 end
                 %BFS for search first par.patchStackSize's values 
 
+
+
+
+
+
             elseif (par.patch_method == 22) || (par.patch_method == 32)
+                %Output grey Distance basd result
                 sort_result      = zeros(MaxSort, par.patchSize * par.patchSize);
                 total_sort       = zeros(1, MaxSort);
                 not_zero_set     = 0;
@@ -221,7 +228,13 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                     end
                 end
 
+
+
+
+
+
             elseif (par.patch_method == 33)
+                %Output FULL length tensor
                 total_sort       = zeros(1, MaxSort);
                 true_sort        = zeros(1, MaxSort);
                 not_zero_set     = 0;
@@ -237,18 +250,87 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                         true_sort(kase) = not_zero_set;
                     end
                 end
-                not_zero_set
-                max_length
-
+                par.patchStackSize = max_length;
                 max_mark         = zeros(not_zero_set);
-                pos_arr          = zeros(not_zero_set, max_length) + 1;
+                pos_arr          = zeros(par.patchStackSize, not_zero_set);
                 for kase = 1: length(Cluster)
                     clus_id      = Cluster(kase);
                     true_id      = true_sort(clus_id);
                     max_mark(true_id) = max_mark(true_id) + 1;
                     true_val     = max_mark(true_id);
-                    pos_arr(true_id, true_val) = kase;
+                    pos_arr(true_val, true_id) = kase;
+                end
 
+
+
+
+
+            elseif (par.patch_method == 34)
+                total_sort      = zeros(1, MaxSort);
+                true_sort       = zeros(1, MaxSort);
+                not_zero_set    = 0;
+                for kase = 1: length(Cluster)
+                    clus_id             = Cluster(kase);
+                    total_sort(clus_id) = total_sort(clus_id) + 1;
+                end
+
+                max_length      = max(total_sort);
+                for kase = 1: MaxSort
+                    if total_sort(kase) ~= 0
+                        not_zero_set    = not_zero_set + 1;
+                        true_sort(kase) = not_zero_set;
+                    end
+                end
+
+                for kase = 1: length(Cluster)
+                    tmp                = Cluster(kase);
+                    Cluster(kase)      = true_sort(tmp);
+                end
+                max_Clus        = max(Cluster);
+
+                %Output Combined group ref patch result
+                ref_patch_id    = zeros(1, M*N);
+                ref_in_clus     = zeros(1, max_Clus);
+                for  j  =  1 : length(columns)
+                    for  i  =  1 : length(rows)
+                        row                     = rows(i);
+                        col                     = columns(j);
+                        Block_id                = (row - 1) * (N) + col;
+                        clus_id                 = Cluster(Block_id);
+                        ref_patch_id(Block_id)  = 1;
+                        ref_in_clus(clus_id)    = ref_in_clus(clus_id) + 1;
+                    end
+                end
+                pos_arr         = zeros(par.patchStackSize * max(ref_in_clus), not_zero_set);
+                mark_id         = zeros(not_zero_set, 1) + 1;
+                
+                for kase = 1: length(ref_patch_id)
+                    if ref_patch_id(kase) == 1
+                        distance_val    = zeros(2,length(Cluster));
+                        current_id      = Cluster(kase);
+                        currentx        = rem(kase, N);
+                        currenty        = fix(kase/ N) + 1;
+                        for id = 1: length(Cluster)
+                            if ref_patch_id(id) == 1
+                                continue;
+                            end
+                            if Cluster(id) ~= current_id
+                                continue;
+                            end
+                            distance_val(1, id) = id;
+                            val_x               = rem(id, N);
+                            val_y               = fix(id/ N) + 1;
+                            distance_val(2, id) = (val_x - currentx)^2 + (val_y - currenty)^2;
+                        end
+                        distance_val    = sortrows(distance_val', 2);
+                        distance_val    = distance_val(distance_val ~= 0);
+                        new_size        = min(par.patchStackSize, length(distance_val) / 2);
+                        loc_start       = mark_id(clus_id);
+                        loc_end         = loc_start + new_size - 1;
+                        pos_arr(loc_start: loc_end, current_id) = distance_val(1: new_size);
+                        mark_id(clus_id) = mark_id(clus_id) + new_size;
+                    end
+                end
 
             end
            

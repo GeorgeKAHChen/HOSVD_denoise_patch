@@ -8,23 +8,28 @@ clc;
 clear;
 %========================================================
 %Setting Parameter
-para_sigma       = 50
+para_sigma       = 10
 if para_sigma == 50
-para_betta       = 0.1
-para_gamma       = 0.35
+    para_betta       = 0.1
+    para_gamma       = 0.35
+    para_patch_size  = 9
+    para_patch_stack = 35
 elseif para_sigma == 20
-para_betta       = 0.1
-para_gamma       = 0.3
+    para_betta       = 0.1
+    para_gamma       = 0.3
+    para_patch_size  = 7
+    para_patch_stack = 25
 elseif para_sigma == 10
-para_betta       = 0.16
-para_gamma       = 0.28
+    para_betta       = 0.16
+    para_gamma       = 0.28
+    para_patch_size  = 7
+    para_patch_stack = 25
 end
 %para_gamma       = 0.67;
-para_patch_size  = 9;
-para_patch_stack = 35;
-para_iteration   = 10;
+
+para_iteration   = 1;
 test_switch      = 0
-patch_method     = 33
+patch_method     = 34
 find_parameter   = 0
 %Method list
 %patch_method = 1: Original method NNM patch search 
@@ -34,8 +39,8 @@ find_parameter   = 0
 %patch_method = x2: None search after classification
 %========================================================
 %Read Initial File
-img = double(imread('figure/Barbara.png'));
-%img = double(imread('figure/House.png'));
+%img = double(imread('figure/Barbara.png'));
+img = double(imread('figure/House.png'));
 %img = double(imread('figure/Lena.png'));
 img = img / 255;
 img_size = size(size(img));

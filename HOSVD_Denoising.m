@@ -28,56 +28,31 @@ for iter = 1 : par.iterationCount
     else
         par.sigma  = sqrt(abs(vd))*par.gamma;
     end
-        
 
-
-    %Combine and changed by KazukiAmakawa
-    if par.sigma <= 15
-        %par.patchSize = 7;
-        %par.patchStackSize = 25;
-        par.betta = 0.16;
-        par.gamma = 0.28;
-        %par.step = min(6, par.patchSize-1)
-
-    elseif par.sigma <= 40
-        %par.patchSize = 8;
-        %par.patchStackSize = 30;
-        par.betta = 0.1;
-        par.gamma = 0.3;  
-        %par.step = min(6, par.patchSize-1)
-
-    else
-        %par.patchSize = 9;
-        %par.patchStackSize = 35;
-        par.betta = 0.1;
-        par.gamma = 0.35;
-        %par.step = min(6, par.patchSize-1)
-
-    end
-
-    
+    %Start Change
     [blk_arr, allPatches] = Block_matching( resultImage, par, noiseImage, 1, blk_arr, iter, initialSigma);
 
     updAllPatches = zeros( size(allPatches) );
     Weights =   zeros( size(allPatches) );
     patchesStacksCount = size(blk_arr,2);
     subTou = 2.9 * sqrt(2 * size(blk_arr,1)) * par.sigma^2;
-    %End Change
-
-
-
 
     for  stackIdx = 1 : patchesStacksCount
-        patches = allPatches(:, blk_arr(:, stackIdx));
-        patches = reshape(patches, [par.patchSize, par.patchSize, par.patchStackSize]);
+        sub_arr = blk_arr(:, stackIdx);
+        sub_arr = sub_arr(sub_arr ~= 0);
+        patches = allPatches(:, sub_arr);
+        patches = reshape(patches, [par.patchSize, par.patchSize, size(patches, 2)]);
         [patches, Wi] = hosvdFilter(patches, subTou);
 
         patches = reshape(patches, [par.patchSize * par.patchSize, size(patches, 3)]);
         Wi = reshape(Wi, [par.patchSize * par.patchSize, size(Wi, 3)]);
 
-        updAllPatches(:, blk_arr(:,stackIdx)) = patches;
-        Weights(:, blk_arr(:,stackIdx)) = Wi;
+        updAllPatches(:, sub_arr) = patches;
+        Weights(:, sub_arr) = Wi;
     end
+    %End Change
+
+
 
     resultImage = zeros(imageHeight,imageWidth);
     im_wei = zeros(imageHeight,imageWidth);
