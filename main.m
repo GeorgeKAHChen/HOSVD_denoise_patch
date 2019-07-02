@@ -8,7 +8,7 @@ clc;
 clear;
 %========================================================
 %Setting Parameter
-para_sigma       = 10
+para_sigma       = 50
 if para_sigma == 50
     para_betta       = 0.1
     para_gamma       = 0.35
@@ -27,7 +27,7 @@ elseif para_sigma == 10
 end
 %para_gamma       = 0.67;
 
-para_iteration   = 1;
+para_iteration   = 100;
 test_switch      = 0
 patch_method     = 34
 find_parameter   = 0
