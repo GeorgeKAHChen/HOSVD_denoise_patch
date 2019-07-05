@@ -69,11 +69,11 @@ for iter = 1 : par.iterationCount
     if isfield(par,'originalImage')
         PSNR = csnr( resultImage, originalImage, 0, 0 );
         SSIM = cal_ssim( resultImage, originalImage, 0, 0 );
-        if old_PSNR > PSNR
-            PSNR = old_PSNR;
-            break;
-        end
-        old_PSNR = PSNR;
+        %if old_PSNR > PSNR
+        %    PSNR = old_PSNR;
+        %    break;
+        %end
+        %old_PSNR = PSNR;
     end
     
     fprintf( 'Iteration %d : sigma = %2.2f, PSNR = %2.2f, SSIM = %2.4f\n', iter, par.sigma, PSNR, SSIM );

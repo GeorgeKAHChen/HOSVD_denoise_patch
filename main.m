@@ -8,13 +8,13 @@ clc;
 clear;
 %========================================================
 %Setting Parameter
-para_sigma       = 50
+para_sigma       = 10
 if para_sigma == 50
     para_betta       = 0.1
     para_gamma       = 0.35
     para_patch_size  = 9
     para_patch_stack = 35
-elseif para_sigma == 20
+elseif para_sigma == 30
     para_betta       = 0.1
     para_gamma       = 0.3
     para_patch_size  = 7
@@ -29,7 +29,13 @@ end
 
 para_iteration   = 100;
 test_switch      = 0
-patch_method     = 34
+patch_method     = 31
+if patch_method == 34
+    para_patch_stack = 100
+end
+if patch_method == 35
+    para_patch_stack = 20
+end
 find_parameter   = 0
 %Method list
 %patch_method = 1: Original method NNM patch search 
@@ -37,6 +43,7 @@ find_parameter   = 0
 %patch_method = 3x: Pre-trained GMM and K-means method
 %patch_method = x1: BFS after classification search
 %patch_method = x2: None search after classification
+%patch_method = 33: None search after classification
 %========================================================
 %Read Initial File
 %img = double(imread('figure/Barbara.png'));

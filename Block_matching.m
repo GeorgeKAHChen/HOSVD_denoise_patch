@@ -21,7 +21,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
             X(k,:) =  blk(:)';
         end
     end
-    
+    size(X)
     X0 = X;
     if Class == 0    
         pos_arr = origin_pos;
@@ -62,20 +62,20 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                 end
             end
 
-        elseif (par.patch_method == 21) || (par.patch_method == 31) || (par.patch_method == 22) || (par.patch_method == 32) || (par.patch_method == 33) || (par.patch_method == 34)
+        elseif (par.patch_method == 21) || (par.patch_method == 31) || (par.patch_method == 22) || (par.patch_method == 32) || (par.patch_method == 33) || (par.patch_method == 34)  || (par.patch_method == 35) || (par.patch_method == 36) 
             %Gaussian Mixture Model Method with BFS nearist researching
             %Added by KazkiAmakawa, source code from 
             [par1, model] = GMMInitial(initialSigma, im);
                                 %Import parameter and GMM pre-trained model
             [X1, Sigma_arr] = GMMim2patch(im, noiseImage, par1);
-            %size(X1)
+            size(X1)
                                 %Import data and sigma distance
             [gmm_MY,gmm_ks,gmm_group,gmm_nSig,gmm_PF] = GMM(Sigma_arr, X1, par1, model);
 
             if (par.patch_method == 21) || (par.patch_method == 22)
                 Cluster = gmm_ks;
                 MaxSort = 250;
-            elseif (par.patch_method == 31) || (par.patch_method == 32) || (par.patch_method == 33) || (par.patch_method == 34)
+            else
                 if gmm_nSig<=15
                     par1.Maxgroupsize = round(par1.Maxgroupsize/2);
                 end
@@ -83,7 +83,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                 MaxSort = FCSort;
                 Cluster = KmeansCluster;
             end
-
+            size(Cluster)
             if (par.patch_method == 21) || (par.patch_method == 31)
                 %Output BFS search result
                 bfstime   = clock;
@@ -265,7 +265,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
 
 
 
-            elseif (par.patch_method == 34)
+            elseif (par.patch_method == 34) || (par.patch_method == 35) || (par.patch_method == 36)
                 total_sort      = zeros(1, MaxSort);
                 true_sort       = zeros(1, MaxSort);
                 not_zero_set    = 0;
@@ -301,36 +301,119 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
                         ref_in_clus(clus_id)    = ref_in_clus(clus_id) + 1;
                     end
                 end
-                pos_arr         = zeros(par.patchStackSize * max(ref_in_clus), not_zero_set);
-                mark_id         = zeros(not_zero_set, 1) + 1;
-                
-                for kase = 1: length(ref_patch_id)
-                    if ref_patch_id(kase) == 1
-                        distance_val    = zeros(2,length(Cluster));
-                        current_id      = Cluster(kase);
-                        currentx        = rem(kase, N);
-                        currenty        = fix(kase/ N) + 1;
-                        for id = 1: length(Cluster)
-                            if ref_patch_id(id) == 1
-                                continue;
+
+                if (par.patch_method == 34)
+                    pos_arr         = zeros(par.patchStackSize * max(ref_in_clus), not_zero_set);
+                    mark_id         = zeros(not_zero_set, 1) + 1;
+                    
+                    for kase = 1: length(ref_patch_id)
+                        if ref_patch_id(kase) == 1
+                            distance_val    = zeros(2,length(Cluster));
+                            current_id      = Cluster(kase);
+                            currentx        = rem(kase, N);
+                            currenty        = fix(kase/ N) + 1;
+                            for id = 1: length(Cluster)
+                                if Cluster(id) ~= current_id
+                                    continue;
+                                end
+                                distance_val(1, id) = id;
+                                val_x               = rem(id, N);
+                                val_y               = fix(id/ N) + 1;
+                                distance_val(2, id) = (val_x - currentx)^2 + (val_y - currenty)^2;
                             end
-                            if Cluster(id) ~= current_id
-                                continue;
-                            end
-                            distance_val(1, id) = id;
-                            val_x               = rem(id, N);
-                            val_y               = fix(id/ N) + 1;
-                            distance_val(2, id) = (val_x - currentx)^2 + (val_y - currenty)^2;
+                            distance_val    = sortrows(distance_val', 2);
+                            distance_val    = distance_val(distance_val ~= 0);
+                            new_size        = min(par.patchStackSize, length(distance_val) / 2);
+                            loc_start       = mark_id(clus_id);
+                            loc_end         = loc_start + new_size - 1;
+                            pos_arr(loc_start: loc_end, current_id) = distance_val(1: new_size);
+                            mark_id(clus_id) = mark_id(clus_id) + new_size;
                         end
-                        distance_val    = sortrows(distance_val', 2);
-                        distance_val    = distance_val(distance_val ~= 0);
-                        new_size        = min(par.patchStackSize, length(distance_val) / 2);
-                        loc_start       = mark_id(clus_id);
-                        loc_end         = loc_start + new_size - 1;
-                        pos_arr(loc_start: loc_end, current_id) = distance_val(1: new_size);
-                        mark_id(clus_id) = mark_id(clus_id) + new_size;
                     end
+
+                elseif (par.patch_method == 35)
+                    pos_arr         = zeros(par.patchStackSize * 2, length(ref_patch_id));
+
+                    for kase = 1: length(ref_patch_id)
+                        if ref_patch_id(kase) == 1
+                            distance_val    = zeros(2,length(Cluster));
+                            current_id      = Cluster(kase);
+                            currentx        = rem(kase, N);
+                            currenty        = fix(kase/ N) + 1;
+                            for id = 1: length(Cluster)
+                                if ref_patch_id(id) == 1
+                                    continue;
+                                end
+                                if Cluster(id) ~= current_id
+                                    continue;
+                                end
+                                distance_val(1, id) = id;
+                                val_x               = rem(id, N);
+                                val_y               = fix(id/ N) + 1;
+                                distance_val(2, id) = (val_x - currentx)^2 + (val_y - currenty)^2;
+                            end
+                            distance_val    = sortrows(distance_val', 2);
+                            distance_val    = distance_val(distance_val ~= 0);
+
+                            if length(distance_val) / 2 <= par.patchStackSize * 2
+                                start_1 = 1;
+                                end_1 = min(par.patchStackSize * 2, length(distance_val)/2);
+                                pos_arr(start_1: end_1, kase)                                       = distance_val(start_1: end_1);
+                            else
+                                start_1         = 1;
+                                end_1           = par.patchStackSize;
+                                start_2         = length(distance_val) / 2 -  par.patchStackSize + 1;
+                                end_2           = length(distance_val) / 2;
+                                pos_arr(1: par.patchStackSize, kase)                          = distance_val(start_1: end_1);
+                                pos_arr(par.patchStackSize + 1: par.patchStackSize * 2, kase) = distance_val(start_2: end_2);
+                            end
+                        end
+                    end
+
+
+                elseif (par.patch_method == 36)
+                    pos_arr         = zeros(par.patchStackSize, length(ref_patch_id));
+
+                    for kase = 1: length(ref_patch_id)
+                        if ref_patch_id(kase) == 1
+                            distance_val    = zeros(2,length(Cluster));
+                            current_id      = Cluster(kase);
+                            currentx        = rem(kase, N);
+                            currenty        = fix(kase/ N) + 1;
+                            for id = 1: length(Cluster)
+                                if ref_patch_id(id) == 1
+                                    continue;
+                                end
+                                if Cluster(id) ~= current_id
+                                    continue;
+                                end
+                                distance_val(1, id) = id;
+                                val_x               = rem(id, N);
+                                val_y               = fix(id/ N) + 1;
+                                distance_val(2, id) = (val_x - currentx)^2 + (val_y - currenty)^2;
+                            end
+                            distance_val    = sortrows(distance_val', 2);
+                            distance_val    = distance_val(distance_val ~= 0);
+
+                            if length(distance_val) / 2 <= par.patchStackSize
+                                start_1 = 1;
+                                end_1 = min(par.patchStackSize, length(distance_val)/2);
+                                pos_arr(start_1: end_1, kase)          = distance_val(start_1: end_1);
+                            else
+                                start_1         = 1;
+                                end_1           = par.patchStackSize;
+                                pos_arr(1: par.patchStackSize, kase)   = distance_val(start_1: end_1);
+                            end
+                        end
+                    end
+
+
                 end
+            
+
+
+
+                
 
             end
            
