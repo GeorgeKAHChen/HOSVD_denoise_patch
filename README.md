@@ -11,46 +11,48 @@
 Detemine the parameters in main.m and run the project
 
 Parameter Table
----|---
-para_sigma          | Sigma of noise
----|---
-para_betta          | Relaxation parameter (Learning Rate)
----|---
-para_gamma          | Scaling factor controlling
----|---
-para_patch_size     | Size of every patch
----|---
-para_patch_stack    | Length of the tensor in SVD processing
----|---
-para_iteration      | Iteration times
----|---
-test_switch         | Print the image on screen or not
----|---
-patch_method        | Patch Analysis method
----|---
+
+|-------------------|:-----------------------------------------:|
+|para_sigma         | Sigma of noise                            |
+|-------------------|:-----------------------------------------:|
+|para_betta         | Relaxation parameter (Learning Rate)      |
+|-------------------|:-----------------------------------------:|
+|para_gamma         | Scaling factor controlling                |
+|-------------------|:-----------------------------------------:|
+|para_patch_size    | Size of every patch                       |
+|-------------------|:-----------------------------------------:|
+|para_patch_stack   | Length of the tensor in SVD processing    |
+|-------------------|:-----------------------------------------:|
+|para_iteration     | Iteration times                           |
+|-------------------|:-----------------------------------------:|
+|test_switch        | Print the image on screen or not          |
+|-------------------|:-----------------------------------------:|
+|patch_method       | Patch Analysis method                     |
+|-------------------|:-----------------------------------------:|
 
 * We had found best para_betta and para_gamma in sigma = 10, 30 and 50. 
 
 * We just trained the GMM pre-trained model in 7, 8, 9 and 10 patch size
 
 * patch_method list
----|---
-1               | Original method NNM patch search 
----|---
-21/22           | Pre-trained Gaussian Mixture Model method only
----|---
-31/32/33/34/35  | Pre-trained GMM and K-means method
----|---
-21/31           | BFS after classification search
----|---
-22/32           | Virtual reference patch method
----|---
-33              | All patch in class combined tensor
----|---
-34              | Reference patch in classes to build tensor
----|---
-35              | Double port search on iamge
----|---
+
+|-------------------|:------------------------------------------------:|
+|1                  | Original method NNM patch search                 |
+|-------------------|:------------------------------------------------:|
+|21/22              | Pre-trained Gaussian Mixture Model method only   |
+|-------------------|:------------------------------------------------:|
+|31/32/33/34/35     | Pre-trained GMM and K-means method               |
+|-------------------|:------------------------------------------------:|
+|21/31              | BFS after classification search                  |
+|-------------------|:------------------------------------------------:|
+|22/32              | Virtual reference patch method                   |
+|-------------------|:------------------------------------------------:|
+|33                 | All patch in class combined tensor               |
+|-------------------|:------------------------------------------------:|
+|34                 | Reference patch in classes to build tensor       |
+|-------------------|:------------------------------------------------:|
+|35                 | Double port search on image                      |
+|-------------------|:------------------------------------------------:|
 
 
 ### Full Mode
