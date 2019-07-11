@@ -21,7 +21,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
             X(k,:) =  blk(:)';
         end
     end
-    size(X)
+    %size(X)
     X0 = X;
     if Class == 0    
         pos_arr = origin_pos;
@@ -68,7 +68,7 @@ function  [pos_arr, X0] = Block_matching(im, par, noiseImage, Class, origin_pos,
             [par1, model] = GMMInitial(initialSigma, im);
                                 %Import parameter and GMM pre-trained model
             [X1, Sigma_arr] = GMMim2patch(im, noiseImage, par1);
-            size(X1)
+            %size(X1)
                                 %Import data and sigma distance
             [gmm_MY,gmm_ks,gmm_group,gmm_nSig,gmm_PF] = GMM(Sigma_arr, X1, par1, model);
 

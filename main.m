@@ -8,7 +8,7 @@ clc;
 clear;
 %========================================================
 %Setting Parameter
-para_sigma       = 10
+para_sigma       = 50
 if para_sigma == 50
     para_betta       = 0.1
     para_gamma       = 0.35
@@ -63,7 +63,6 @@ image_with_noise = img + randn(size(img)) * para_sigma / 255;
 
 %========================================================
 %Algorithm
-
 if find_parameter
     betta_arr = (0.14: 0.02: 0.3);
     gamma_arr = (0.2: 0.02: 0.3);
@@ -89,6 +88,9 @@ if find_parameter
         end
     end	
 else
+    image_with_noise   = imresize(image_with_noise, size(image_with_noise) * 2);
+    size(img)
+    size(image_with_noise)
     [result_img, PSNR] = Image_HOSVD_Denoising(255 * image_with_noise, 255 * img, para_sigma, para_betta, para_gamma, para_patch_size, para_patch_stack, para_iteration, patch_method);
 end
 

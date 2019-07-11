@@ -11,7 +11,7 @@ N = imageHeight-patchSize+1;
 M = imageWidth-patchSize+1;
 rows = 1:N;
 columns = 1:M;
-fprintf('PSNR of the noisy image = %f \n', csnr(noiseImage, originalImage, 0, 0) );
+fprintf('PSNR of the noisy image = %f \n', csnr(imresize(noiseImage, size(noiseImage)/2), originalImage, 0, 0) );
 
 resultImage = noiseImage;
 initialSigma = par.sigma;
@@ -67,8 +67,8 @@ for iter = 1 : par.iterationCount
     resultImage = resultImage./(im_wei+eps);
     
     if isfield(par,'originalImage')
-        PSNR = csnr( resultImage, originalImage, 0, 0 );
-        SSIM = cal_ssim( resultImage, originalImage, 0, 0 );
+        PSNR = csnr( imresize(resultImage, size(resultImage)/2), originalImage, 0, 0 );
+        SSIM = cal_ssim( imresize(resultImage, size(resultImage)/2), originalImage, 0, 0 );
         %if old_PSNR > PSNR
         %    PSNR = old_PSNR;
         %    break;
