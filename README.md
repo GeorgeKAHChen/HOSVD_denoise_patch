@@ -28,6 +28,7 @@ Parameter Table
 * We just trained the GMM pre-trained model in 7, 8, 9 and 10 patch size
 
 * patch_method list
+
 |Code               | Intro                                            |
 |-------------------|:------------------------------------------------:|
 |1                  | Original method NNM patch search                 |
