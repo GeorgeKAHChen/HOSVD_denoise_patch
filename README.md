@@ -1,7 +1,8 @@
-# Based Global Similar Image Patche and HOSVD for Image Denoising
+# Image denoising based on global image similar patches searching and HOSVD to patches tensor
 
-### Cite this project
+### Cite this project/paper
 
+Guo, J., Chen, H., Shen, Z. et al. Image denoising based on global image similar patches searching and HOSVD to patches tensor. EURASIP J. Adv. Signal Process. 2022, 19 (2022). https://doi.org/10.1186/s13634-021-00798-4
 
 ## Install
 `git clone https://www.github.com/KazukiAmakawa/HOSVD_denoise_patch `
@@ -70,4 +71,6 @@ If you want to using this project as close source project, please connect us.
 
 [3] R. Movchan and Z. Shen, "Adaptive thresholding hosvd algorithm with iterative regularization for image denoising," 2017 IEEE International Conference on Image Processing (ICIP), Beijing, 2017, pp. 2991-2995. doi: 10.1109/ICIP.2017.8296831
 
-(We used most code in HOSVD from this paper)
+## Contact
+
+If you have any problem about the code, please contact: (Mr.) Huayan Chen: GeorgeKahChen@gmail.com 
